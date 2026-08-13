@@ -25,9 +25,12 @@
 
   <link rel="icon" href="https://i.postimg.cc/SRp3Z88Y/Offer_Lead_Brand_Copia_removebg_preview.png" type="image/png" />
 
-  <!-- Google Fonts -->
+  <!-- Pré-conexão para Google Fonts e CDN -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
@@ -730,8 +733,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px 24px 24px;       /* padding reduzido para evitar scroll */
-      overflow: hidden;              /* remove a barra de rolagem */
+      padding: 20px 24px 24px;
+      overflow: hidden;
     }
     .qr-modal #qrcode {
       width: 250px;
@@ -801,8 +804,6 @@
       .modal-header { padding: 18px 20px 12px; }
       .modal-body { padding: 20px; }
       .qr-modal .modal { max-width: 100%; }
-
-      /* Ajuste para o QR Code em mobile */
       .qr-modal #qrcode {
         width: 200px;
         height: 200px;
@@ -1209,7 +1210,7 @@
     <span class="kicker">11 · Quem está por trás</span>
     <h2>Quem Está por Trás da Máquina?</h2>
     <div class="about-section">
-      <img src="https://i.postimg.cc/V6XKJLqR/Harlei.png" alt="Harlei - Fundador" />
+      <img src="https://i.postimg.cc/V6XKJLqR/Harlei.png" alt="Harlei - Fundador" loading="lazy" />
       <div class="about-text">
         <p><strong>Olá, sou Harlei</strong>, fundador da <strong>OfferLead — Agência de Marketing Digital</strong> e criador do sistema <strong>A Máquina de Clientes</strong>.</p>
         <p>Há anos ajudo profissionais liberais a saírem do improviso e entrarem no mundo da previsibilidade. Minha missão é fazer com que você seja encontrado por quem já está procurando pelos seus serviços — sem depender de sorte ou indicações esporádicas.</p>
@@ -1272,7 +1273,7 @@
 <!-- FOOTER -->
 <footer>
   <div class="container">
-    <img src="https://i.postimg.cc/bNRcB6mX/Offer_Lead_Brand.png" alt="OfferLead - Agência de Marketing Digital" class="footer-logo" />
+    <img src="https://i.postimg.cc/bNRcB6mX/Offer_Lead_Brand.png" alt="OfferLead - Agência de Marketing Digital" class="footer-logo" loading="lazy" />
     <p><strong>OfferLead — Agência de Marketing Digital</strong><br />Especialistas em <strong>Google Ads, SEO Local, Google Meu Negócio, Landing Pages e Gestão de Tráfego</strong> para profissionais liberais.</p>
     <p><strong>A Máquina de Clientes</strong> — Sistema Completo de Captação de Clientes.<br />Atendemos profissionais liberais em todo o Brasil.<br />Contato via WhatsApp: (11) 91456-4710</p>
     <p style="margin-top:2rem;">&copy; 2026 — Todos os direitos reservados.<br /><span style="font-size:0.75rem;">Não garantimos resultados específicos. Nosso compromisso é com a aplicação do sistema, a transparência de métricas e a otimização contínua baseada em dados. Resultados variam conforme mercado e atuação do profissional.</span></p>
@@ -1306,7 +1307,7 @@
     <div class="modal-body">
       <p style="margin-bottom: 4px;">Escaneie o QR Code com seu celular para abrir o WhatsApp</p>
       <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ou clique no botão abaixo para usar o WhatsApp Web</p>
-      <div id="qrcode"></div>  <!-- sem style inline, controlado pelo CSS -->
+      <div id="qrcode"></div>
       <a id="qrContinueBtn" href="#" class="btn" target="_blank" rel="noopener noreferrer">
         Abrir no WhatsApp Web
         <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -1316,13 +1317,9 @@
   </div>
 </div>
 
-<!-- QRCode.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
 <script>
   (function() {
     "use strict";
-    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // ---------- FAQ ACCORDION ----------
     document.querySelectorAll('.faq-item').forEach(function(item) {
@@ -1447,7 +1444,6 @@
       carouselEl.addEventListener('mouseenter', function() { clearInterval(autoTimer); });
       carouselEl.addEventListener('mouseleave', resetAuto);
 
-      /* touch swipe */
       var touchStartX = 0;
       track.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
       track.addEventListener('touchend', function(e) {
@@ -1552,7 +1548,7 @@
       }
     });
 
-    // ---------- MODAL QR CODE WHATSAPP (desktop only) ----------
+    // ---------- MODAL QR CODE WHATSAPP (com carregamento sob demanda) ----------
     var qrOverlay = document.getElementById('qrModalOverlay');
     var qrClose = document.getElementById('qrModalClose');
     var qrContainer = document.getElementById('qrcode');
@@ -1560,10 +1556,29 @@
     var qrInstance = null;
     var currentLink = '';
 
+    function loadQRCodeScript(callback) {
+      // Se já estiver disponível globalmente, chama callback imediatamente
+      if (typeof QRCode !== 'undefined') {
+        callback();
+        return;
+      }
+      // Caso contrário, baixa o script
+      var script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+      script.onload = callback;
+      document.head.appendChild(script);
+    }
+
     function generateQR(link) {
-      // Limpa o container
       qrContainer.innerHTML = '';
-      // Gera QR Code com tamanho fixo de 250px (será redimensionado via CSS)
+      // Garante que a biblioteca esteja carregada
+      if (typeof QRCode === 'undefined') {
+        // Se por algum motivo não estiver carregada, tenta carregar e gerar novamente
+        loadQRCodeScript(function() {
+          generateQR(link);
+        });
+        return;
+      }
       qrInstance = new QRCode(qrContainer, {
         text: link,
         width: 250,
@@ -1576,10 +1591,13 @@
 
     function openQrModal(link) {
       currentLink = link;
-      generateQR(link);
-      qrContinueBtn.href = link;
-      qrOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
+      // Carrega a biblioteca se necessário e gera o QR
+      loadQRCodeScript(function() {
+        generateQR(link);
+        qrContinueBtn.href = link;
+        qrOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
     }
 
     function closeQrModal() {
